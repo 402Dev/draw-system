@@ -7,3 +7,12 @@ db.version(1).stores({
   elements: "id, systemId",
   interactions: "id, systemId, source, target",
 });
+
+db.version(2)
+  .stores({
+    systems: "id, folder",
+    elements: "id, systemId",
+    interactions: "id, systemId, source, target",
+    snapshots: "id, systemId, createdAt",
+  })
+  .upgrade(() => {});

@@ -1,14 +1,21 @@
 import { useState, useCallback } from "react";
 import ReactMarkdown from "react-markdown";
-import { X, ArrowRight, ArrowLeftRight, Trash2 } from "lucide-react";
+import { X, ArrowRight, ArrowLeftRight, Trash2, Plus } from "lucide-react";
 import { useStore } from "../store";
 import { getIcon } from "../utils/icons";
 import IconPicker from "./IconPicker";
+
+const STATUS_OPTIONS = ["", "planned", "active", "deprecated", "critical"];
 
 export default function SidePanel({ selected, onClose }) {
   const { state, actions } = useStore();
   const [showIconPicker, setShowIconPicker] = useState(false);
   const [markdownPreview, setMarkdownPreview] = useState(false);
+  const [tagInput, setTagInput] = useState("");
+  const [newAttrKey, setNewAttrKey] = useState("");
+  const [newAttrVal, setNewAttrVal] = useState("");
+  const [newCardKey, setNewCardKey] = useState("");
+  const [newCardVal, setNewCardVal] = useState("");
 
   if (!selected) return null;
 
@@ -38,6 +45,17 @@ export default function SidePanel({ selected, onClose }) {
   function handleNatureChange(e) {
     actions.updateInteraction(item.id, {
       data: { natureOfInteraction: e.target.value },
+    });
+  }
+
+  function handleNatureAtoBChange(e) {
+    actions.updateInteraction(item.id, {
+      data: { natureAtoB: e.target.value },
+    });
+  }
+  function handleNatureBtoAChange(e) {
+    actions.updateInteraction(item.id, {
+      data: { natureBtoA: e.target.value },
     });
   }
 
@@ -119,6 +137,49 @@ export default function SidePanel({ selected, onClose }) {
                 placeholder="Element label"
               />
 
+              <label className="field-label">Tags</label>
+              <div className="tags-row">
+                {(item.data?.tags || []).map((tag) => (
+                  <span key={tag} className="tag">
+                    {tag}
+                    <button
+                      className="tag__remove"
+                      onClick={() =>
+                        actions.updateElement(item.id, {
+                          data: {
+                            tags: item.data.tags.filter((t) => t !== tag),
+                          },
+                        })
+                      }>
+                      ×
+                    </button>
+                  </span>
+                ))}
+                <input
+                  className="tag-input"
+                  value={tagInput}
+                  onChange={(e) => setTagInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    e.stopPropagation();
+                    if (
+                      (e.key === "Enter" || e.key === ",") &&
+                      tagInput.trim()
+                    ) {
+                      e.preventDefault();
+                      const newTag = tagInput.trim();
+                      const existing = item.data?.tags || [];
+                      if (!existing.includes(newTag)) {
+                        actions.updateElement(item.id, {
+                          data: { tags: [...existing, newTag] },
+                        });
+                      }
+                      setTagInput("");
+                    }
+                  }}
+                  placeholder="Add tag, press Enter…"
+                />
+              </div>
+
               <label className="field-label">Icon</label>
               {item.data?.customImage ? (
                 <div className="icon-img-row">
@@ -145,6 +206,110 @@ export default function SidePanel({ selected, onClose }) {
                   {Icon && <Icon size={20} strokeWidth={1.5} />}
                   <span>{item.data?.iconName || "Choose icon"}</span>
                 </button>
+              )}
+
+              {item.type === "groupNode" ? (
+                /* ── Group box: fill + border color ─── */
+                <>
+                  <label className="field-label">Fill Color</label>
+                  <div className="color-row">
+                    <input
+                      type="color"
+                      className="color-input"
+                      value={
+                        item.data?.color
+                          ? item.data.color.startsWith("rgba")
+                            ? "#6366f1"
+                            : item.data.color
+                          : "#6366f1"
+                      }
+                      onChange={(e) =>
+                        actions.updateElement(item.id, {
+                          data: { color: e.target.value + "33" },
+                        })
+                      }
+                    />
+                    <input
+                      type="range"
+                      min={0}
+                      max={100}
+                      className="opacity-slider"
+                      title="Fill opacity"
+                      value={Math.round(
+                        item.data?.color?.startsWith("rgba")
+                          ? parseFloat(item.data.color.split(",")[3]) * 100
+                          : item.data?.color?.length === 9
+                            ? parseInt(item.data.color.slice(7), 16) / 2.55
+                            : 20,
+                      )}
+                      onChange={(e) => {
+                        const hex =
+                          item.data?.color &&
+                          !item.data.color.startsWith("rgba")
+                            ? item.data.color.slice(0, 7)
+                            : "#6366f1";
+                        const alpha = Math.round(
+                          (parseInt(e.target.value) / 100) * 255,
+                        )
+                          .toString(16)
+                          .padStart(2, "0");
+                        actions.updateElement(item.id, {
+                          data: { color: hex + alpha },
+                        });
+                      }}
+                    />
+                  </div>
+                  <label className="field-label">Border Color</label>
+                  <div className="color-row">
+                    <input
+                      type="color"
+                      className="color-input"
+                      value={item.data?.borderColor || "#6366f1"}
+                      onChange={(e) =>
+                        actions.updateElement(item.id, {
+                          data: { borderColor: e.target.value },
+                        })
+                      }
+                    />
+                    <button
+                      className="toggle-btn"
+                      onClick={() =>
+                        actions.updateElement(item.id, {
+                          data: { borderColor: "#6366f1" },
+                        })
+                      }>
+                      Reset
+                    </button>
+                  </div>
+                </>
+              ) : (
+                /* ── All other nodes: single color ─── */
+                <>
+                  <label className="field-label">Node Color</label>
+                  <div className="color-row">
+                    <input
+                      type="color"
+                      className="color-input"
+                      value={item.data?.color || "#252540"}
+                      onChange={(e) =>
+                        actions.updateElement(item.id, {
+                          data: { color: e.target.value },
+                        })
+                      }
+                    />
+                    {item.data?.color && (
+                      <button
+                        className="toggle-btn"
+                        onClick={() =>
+                          actions.updateElement(item.id, {
+                            data: { color: undefined },
+                          })
+                        }>
+                        Reset
+                      </button>
+                    )}
+                  </div>
+                </>
               )}
 
               <div className="field-label-row">
@@ -175,6 +340,203 @@ export default function SidePanel({ selected, onClose }) {
                   placeholder="Define element purpose/subsystem..."
                   rows={6}
                 />
+              )}
+
+              {/* Status Badge */}
+              <label className="field-label">Status</label>
+              <select
+                className="field-input"
+                value={item.data?.status || ""}
+                onChange={(e) =>
+                  actions.updateElement(item.id, {
+                    data: { status: e.target.value },
+                  })
+                }>
+                {STATUS_OPTIONS.map((s) => (
+                  <option key={s} value={s}>
+                    {s ? s.charAt(0).toUpperCase() + s.slice(1) : "— none —"}
+                  </option>
+                ))}
+              </select>
+
+              {/* External URL */}
+              <label className="field-label">External Link (URL)</label>
+              <input
+                className="field-input"
+                type="url"
+                value={item.data?.url || ""}
+                onChange={(e) =>
+                  actions.updateElement(item.id, {
+                    data: { url: e.target.value },
+                  })
+                }
+                onKeyDown={(e) => e.stopPropagation()}
+                placeholder="https://…"
+              />
+
+              {/* Custom Key-Value Attributes */}
+              <label className="field-label">Custom Attributes</label>
+              {(item.data?.attributes || []).map((attr, i) => (
+                <div key={i} className="attr-row">
+                  <input
+                    className="field-input attr-key"
+                    value={attr.key}
+                    onKeyDown={(e) => e.stopPropagation()}
+                    onChange={(e) => {
+                      const attrs = [...(item.data.attributes || [])];
+                      attrs[i] = { ...attrs[i], key: e.target.value };
+                      actions.updateElement(item.id, {
+                        data: { attributes: attrs },
+                      });
+                    }}
+                    placeholder="Key"
+                  />
+                  <input
+                    className="field-input attr-val"
+                    value={attr.value}
+                    onKeyDown={(e) => e.stopPropagation()}
+                    onChange={(e) => {
+                      const attrs = [...(item.data.attributes || [])];
+                      attrs[i] = { ...attrs[i], value: e.target.value };
+                      actions.updateElement(item.id, {
+                        data: { attributes: attrs },
+                      });
+                    }}
+                    placeholder="Value"
+                  />
+                  <button
+                    className="icon-btn danger"
+                    onClick={() => {
+                      const attrs = (item.data.attributes || []).filter(
+                        (_, idx) => idx !== i,
+                      );
+                      actions.updateElement(item.id, {
+                        data: { attributes: attrs },
+                      });
+                    }}>
+                    <Trash2 size={12} />
+                  </button>
+                </div>
+              ))}
+              <div className="attr-row">
+                <input
+                  className="field-input attr-key"
+                  value={newAttrKey}
+                  onKeyDown={(e) => e.stopPropagation()}
+                  onChange={(e) => setNewAttrKey(e.target.value)}
+                  placeholder="New key"
+                />
+                <input
+                  className="field-input attr-val"
+                  value={newAttrVal}
+                  onKeyDown={(e) => {
+                    e.stopPropagation();
+                    if (e.key === "Enter" && newAttrKey.trim()) {
+                      const attrs = [
+                        ...(item.data?.attributes || []),
+                        { key: newAttrKey.trim(), value: newAttrVal },
+                      ];
+                      actions.updateElement(item.id, {
+                        data: { attributes: attrs },
+                      });
+                      setNewAttrKey("");
+                      setNewAttrVal("");
+                    }
+                  }}
+                  onChange={(e) => setNewAttrVal(e.target.value)}
+                  placeholder="Value"
+                />
+                <button
+                  className="icon-btn"
+                  disabled={!newAttrKey.trim()}
+                  onClick={() => {
+                    if (!newAttrKey.trim()) return;
+                    const attrs = [
+                      ...(item.data?.attributes || []),
+                      { key: newAttrKey.trim(), value: newAttrVal },
+                    ];
+                    actions.updateElement(item.id, {
+                      data: { attributes: attrs },
+                    });
+                    setNewAttrKey("");
+                    setNewAttrVal("");
+                  }}>
+                  <Plus size={13} />
+                </button>
+              </div>
+
+              {/* Card Node rows editing */}
+              {item.type === "cardNode" && (
+                <>
+                  <label className="field-label">Schema Rows</label>
+                  {(item.data?.rows || []).map((row, i) => (
+                    <div key={i} className="attr-row">
+                      <input
+                        className="field-input attr-key"
+                        value={row.key}
+                        onKeyDown={(e) => e.stopPropagation()}
+                        onChange={(e) => {
+                          const rows = [...(item.data.rows || [])];
+                          rows[i] = { ...rows[i], key: e.target.value };
+                          actions.updateElement(item.id, { data: { rows } });
+                        }}
+                        placeholder="Field"
+                      />
+                      <input
+                        className="field-input attr-val"
+                        value={row.value}
+                        onKeyDown={(e) => e.stopPropagation()}
+                        onChange={(e) => {
+                          const rows = [...(item.data.rows || [])];
+                          rows[i] = { ...rows[i], value: e.target.value };
+                          actions.updateElement(item.id, { data: { rows } });
+                        }}
+                        placeholder="Type / value"
+                      />
+                      <button
+                        className="icon-btn danger"
+                        onClick={() => {
+                          const rows = (item.data.rows || []).filter(
+                            (_, idx) => idx !== i,
+                          );
+                          actions.updateElement(item.id, { data: { rows } });
+                        }}>
+                        <Trash2 size={12} />
+                      </button>
+                    </div>
+                  ))}
+                  <div className="attr-row">
+                    <input
+                      className="field-input attr-key"
+                      value={newCardKey}
+                      onKeyDown={(e) => e.stopPropagation()}
+                      onChange={(e) => setNewCardKey(e.target.value)}
+                      placeholder="Field name"
+                    />
+                    <input
+                      className="field-input attr-val"
+                      value={newCardVal}
+                      onKeyDown={(e) => e.stopPropagation()}
+                      onChange={(e) => setNewCardVal(e.target.value)}
+                      placeholder="Type / value"
+                    />
+                    <button
+                      className="icon-btn"
+                      disabled={!newCardKey.trim()}
+                      onClick={() => {
+                        if (!newCardKey.trim()) return;
+                        const rows = [
+                          ...(item.data?.rows || []),
+                          { key: newCardKey.trim(), value: newCardVal },
+                        ];
+                        actions.updateElement(item.id, { data: { rows } });
+                        setNewCardKey("");
+                        setNewCardVal("");
+                      }}>
+                      <Plus size={13} />
+                    </button>
+                  </div>
+                </>
               )}
 
               {(connectedTo.length > 0 || connectedFrom.length > 0) && (
@@ -226,28 +588,133 @@ export default function SidePanel({ selected, onClose }) {
                 </button>
               </div>
 
-              <div className="field-label-row">
-                <label className="field-label">Nature of Interaction</label>
-                <button
-                  className="toggle-btn"
-                  onClick={() => setMarkdownPreview((p) => !p)}>
-                  {markdownPreview ? "Edit" : "Preview"}
-                </button>
+              <label className="field-label">Routing</label>
+              <div className="segment-row">
+                {["bezier", "straight", "step"].map((rt) => (
+                  <button
+                    key={rt}
+                    className={`segment-btn${(item.data?.routingType || "bezier") === rt ? " segment-btn--active" : ""}`}
+                    onClick={() =>
+                      actions.updateInteraction(item.id, {
+                        data: { routingType: rt },
+                      })
+                    }>
+                    {rt.charAt(0).toUpperCase() + rt.slice(1)}
+                  </button>
+                ))}
               </div>
-              {markdownPreview ? (
-                <div className="markdown-preview">
-                  <ReactMarkdown>
-                    {item.data?.natureOfInteraction || "_No description_"}
-                  </ReactMarkdown>
-                </div>
-              ) : (
-                <textarea
-                  className="field-textarea"
-                  value={item.data?.natureOfInteraction || ""}
-                  onChange={handleNatureChange}
-                  placeholder="Markdown supported…"
-                  rows={6}
+
+              <label className="field-label">Edge Label</label>
+              <input
+                className="field-input"
+                value={item.data?.edgeLabel || ""}
+                onChange={(e) =>
+                  actions.updateInteraction(item.id, {
+                    data: { edgeLabel: e.target.value },
+                  })
+                }
+                placeholder="Short midpoint label…"
+              />
+
+              <label className="field-label">Edge Color</label>
+              <div className="color-row">
+                <input
+                  type="color"
+                  className="color-input"
+                  value={item.data?.color || "#6366f1"}
+                  onChange={(e) =>
+                    actions.updateInteraction(item.id, {
+                      data: { color: e.target.value },
+                    })
+                  }
                 />
+                {item.data?.color && (
+                  <button
+                    className="toggle-btn"
+                    onClick={() =>
+                      actions.updateInteraction(item.id, {
+                        data: { color: undefined },
+                      })
+                    }>
+                    Reset
+                  </button>
+                )}
+              </div>
+
+              {item.data?.isBidirectional ? (
+                <>
+                  <div className="field-label-row">
+                    <label className="field-label">
+                      Nature of Interaction (A → B)
+                    </label>
+                    <button
+                      className="toggle-btn"
+                      onClick={() => setMarkdownPreview((p) => !p)}>
+                      {markdownPreview ? "Edit" : "Preview"}
+                    </button>
+                  </div>
+                  {markdownPreview ? (
+                    <div className="markdown-preview">
+                      <ReactMarkdown>
+                        {item.data?.natureAtoB || "_No description_"}
+                      </ReactMarkdown>
+                    </div>
+                  ) : (
+                    <textarea
+                      className="field-textarea"
+                      value={item.data?.natureAtoB || ""}
+                      onChange={handleNatureAtoBChange}
+                      placeholder="Describe A → B..."
+                      rows={4}
+                    />
+                  )}
+                  <div className="field-label-row" style={{ marginTop: 12 }}>
+                    <label className="field-label">
+                      Nature of Interaction (B → A)
+                    </label>
+                  </div>
+                  {markdownPreview ? (
+                    <div className="markdown-preview">
+                      <ReactMarkdown>
+                        {item.data?.natureBtoA || "_No description_"}
+                      </ReactMarkdown>
+                    </div>
+                  ) : (
+                    <textarea
+                      className="field-textarea"
+                      value={item.data?.natureBtoA || ""}
+                      onChange={handleNatureBtoAChange}
+                      placeholder="Describe B → A..."
+                      rows={4}
+                    />
+                  )}
+                </>
+              ) : (
+                <>
+                  <div className="field-label-row">
+                    <label className="field-label">Nature of Interaction</label>
+                    <button
+                      className="toggle-btn"
+                      onClick={() => setMarkdownPreview((p) => !p)}>
+                      {markdownPreview ? "Edit" : "Preview"}
+                    </button>
+                  </div>
+                  {markdownPreview ? (
+                    <div className="markdown-preview">
+                      <ReactMarkdown>
+                        {item.data?.natureOfInteraction || "_No description_"}
+                      </ReactMarkdown>
+                    </div>
+                  ) : (
+                    <textarea
+                      className="field-textarea"
+                      value={item.data?.natureOfInteraction || ""}
+                      onChange={handleNatureChange}
+                      placeholder="Markdown supported…"
+                      rows={6}
+                    />
+                  )}
+                </>
               )}
             </>
           )}
