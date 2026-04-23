@@ -5,7 +5,7 @@ import { useStore } from "../store";
 const STATUS_OPTIONS = ["", "planned", "active", "deprecated", "critical"];
 
 export default function BulkEditPanel({ selectedIds, onClose }) {
-  const { actions } = useStore();
+  const { state, actions } = useStore();
   const [color, setColor] = useState("");
   const [tag, setTag] = useState("");
   const [status, setStatus] = useState("");
@@ -20,16 +20,20 @@ export default function BulkEditPanel({ selectedIds, onClose }) {
   function applyTag() {
     const t = tag.trim();
     if (!t) return;
-    selectedIds.forEach((id) =>
-      actions.updateElement(id, (el) => {
-        const existing = el?.data?.tags || [];
-        if (existing.includes(t)) return {};
-        return { data: { tags: [...existing, t] } };
-      }),
-    );
-    // Simple version: just dispatch without reading existing data
     selectedIds.forEach((id) => {
-      actions.updateElement(id, { data: { _addTag: t } });
+      const el = state.elements.find((e) => e.id === id);
+      const existing =
+        typeof el?.data?.tags === "string"
+          ? el.data.tags
+              .split(",")
+              .map((s) => s.trim())
+              .filter(Boolean)
+          : el?.data?.tags || [];
+      if (!existing.includes(t)) {
+        actions.updateElement(id, {
+          data: { tags: [...existing, t].join(",") },
+        });
+      }
     });
     setTag("");
   }

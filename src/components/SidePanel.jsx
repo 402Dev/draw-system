@@ -139,18 +139,30 @@ export default function SidePanel({ selected, onClose }) {
 
               <label className="field-label">Tags</label>
               <div className="tags-row">
-                {(item.data?.tags || []).map((tag) => (
+                {(typeof item.data?.tags === "string"
+                  ? item.data.tags
+                      .split(",")
+                      .map((t) => t.trim())
+                      .filter(Boolean)
+                  : item.data?.tags || []
+                ).map((tag) => (
                   <span key={tag} className="tag">
                     {tag}
                     <button
                       className="tag__remove"
-                      onClick={() =>
+                      onClick={() => {
+                        const arr = (
+                          typeof item.data?.tags === "string"
+                            ? item.data.tags
+                                .split(",")
+                                .map((t) => t.trim())
+                                .filter(Boolean)
+                            : item.data?.tags || []
+                        ).filter((t) => t !== tag);
                         actions.updateElement(item.id, {
-                          data: {
-                            tags: item.data.tags.filter((t) => t !== tag),
-                          },
-                        })
-                      }>
+                          data: { tags: arr.join(",") },
+                        });
+                      }}>
                       ×
                     </button>
                   </span>
@@ -167,10 +179,16 @@ export default function SidePanel({ selected, onClose }) {
                     ) {
                       e.preventDefault();
                       const newTag = tagInput.trim();
-                      const existing = item.data?.tags || [];
+                      const existing =
+                        typeof item.data?.tags === "string"
+                          ? item.data.tags
+                              .split(",")
+                              .map((t) => t.trim())
+                              .filter(Boolean)
+                          : item.data?.tags || [];
                       if (!existing.includes(newTag)) {
                         actions.updateElement(item.id, {
-                          data: { tags: [...existing, newTag] },
+                          data: { tags: [...existing, newTag].join(",") },
                         });
                       }
                       setTagInput("");
