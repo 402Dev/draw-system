@@ -62,11 +62,7 @@ export default function WorkspaceSwitcher() {
   return (
     <>
       <div
-        className="workspace-switcher"
-        onMouseLeave={() => {
-          setOpen(false);
-          setEditingFolderFor(null);
-        }}>
+        className="workspace-switcher">
         <button
           className="workspace-switcher__trigger"
           onClick={() => setOpen((v) => !v)}
