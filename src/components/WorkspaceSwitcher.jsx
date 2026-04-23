@@ -47,7 +47,7 @@ export default function WorkspaceSwitcher() {
           }}>
           <Folder size={11} />
         </button>
-        {all.length > 1 && sys.id !== current.id && (
+        {all.length > 1 && (
           <button
             className="icon-btn danger"
             title="Delete workspace"

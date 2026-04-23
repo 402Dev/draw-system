@@ -196,7 +196,7 @@ export function StoreProvider({ children }) {
 
     updateSystem: useCallback((changes) => {
       dispatch({ type: "UPDATE_SYSTEM", payload: changes });
-      db.systems.update(SYSTEM_ID, changes);
+      db.systems.update(activeSystemId.current, changes);
     }, []),
 
     addElement: useCallback((position) => {

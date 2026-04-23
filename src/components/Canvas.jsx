@@ -55,9 +55,6 @@ function toRFEdges(interactions) {
     type: "smart",
     data: ix.data,
     markerEnd: { type: MarkerType.ArrowClosed, color: "#6366f1" },
-    markerStart: ix.data?.isBidirectional
-      ? { type: MarkerType.ArrowClosed, color: "#6366f1" }
-      : undefined,
   }));
 }
 
