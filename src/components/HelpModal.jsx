@@ -3,6 +3,66 @@ import { X } from "lucide-react";
 
 const SECTIONS = [
   {
+    id: "element-types",
+    label: "Element types overview",
+    content: (
+      <>
+        <h2>Element types overview</h2>
+        <p>
+          Causal Mapper supports several node types, each designed for a
+          different modeling purpose. Drag from the palette at the bottom of the
+          canvas to add them.
+        </p>
+        <ul style={{ listStyle: "none", padding: 0 }}>
+          <li style={{ marginBottom: 18 }}>
+            <span style={{ fontSize: 22, marginRight: 8 }}>🔵</span>
+            <strong>Element (Icon Node):</strong> The default node. Represents a
+            component, actor, service, or concept. Choose an icon, set a label,
+            add metadata, and connect with edges.{" "}
+            <em>Use for most system parts.</em>
+          </li>
+          <li style={{ marginBottom: 18 }}>
+            <span style={{ fontSize: 22, marginRight: 8 }}>🟨</span>
+            <strong>Sticky Note:</strong> A free-form yellow note for
+            annotations, reminders, or commentary.{" "}
+            <em>
+              Use for explanations, TODOs, or context that doesn't fit as a
+              node.
+            </em>
+          </li>
+          <li style={{ marginBottom: 18 }}>
+            <span style={{ fontSize: 22, marginRight: 8 }}>🟪</span>
+            <strong>Group Box:</strong> A resizable, colored rectangle for
+            visually grouping related nodes. Drag to resize, double-click to
+            edit the label. <em>Use to show subsystems, domains, or layers.</em>
+          </li>
+          <li style={{ marginBottom: 18 }}>
+            <span style={{ fontSize: 22, marginRight: 8 }}>📋</span>
+            <strong>Schema Card:</strong> A table-like node for structured data.
+            Add key-value rows (e.g. <code>field: type</code> or{" "}
+            <code>setting: value</code>) in the side panel.{" "}
+            <em>Use for data models, config schemas, or anything tabular.</em>
+            <br />
+            <span style={{ color: "#888", fontSize: 13 }}>
+              Example:
+              <pre
+                style={{
+                  background: "#f6f6f6",
+                  padding: 8,
+                  borderRadius: 4,
+                  marginTop: 4,
+                }}>
+                Name | Type | Required ---------|---------|--------- user_id |
+                string | Yes email | string | Yes age | number | No
+              </pre>
+              Edit rows in the side panel when a Schema Card is selected.
+            </span>
+          </li>
+        </ul>
+      </>
+    ),
+  },
+  {
     id: "intro",
     label: "Introduction",
     content: (
