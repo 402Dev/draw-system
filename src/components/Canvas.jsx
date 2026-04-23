@@ -556,9 +556,16 @@ export default function Canvas({ searchQuery }) {
   // ── Tag filtering ────────────────────────────────────────────────────────
   const allTags = useMemo(() => {
     const set = new Set();
-    state.elements.forEach((el) =>
-      (el.data?.tags || []).forEach((t) => set.add(t)),
-    );
+    state.elements.forEach((el) => {
+      const raw = el.data?.tags || "";
+      const arr = Array.isArray(raw)
+        ? raw
+        : raw
+            .split(",")
+            .map((t) => t.trim())
+            .filter(Boolean);
+      arr.forEach((t) => set.add(t));
+    });
     return [...set];
   }, [state.elements]);
 
@@ -569,7 +576,14 @@ export default function Canvas({ searchQuery }) {
     if (activeTag) {
       result = result.map((n) => {
         const el = state.elements.find((e) => e.id === n.id);
-        const hasTag = (el?.data?.tags || []).includes(activeTag);
+        const raw = el?.data?.tags || "";
+        const tagArr = Array.isArray(raw)
+          ? raw
+          : raw
+              .split(",")
+              .map((t) => t.trim())
+              .filter(Boolean);
+        const hasTag = tagArr.includes(activeTag);
         return { ...n, style: { ...n.style, opacity: hasTag ? 1 : 0.2 } };
       });
     }

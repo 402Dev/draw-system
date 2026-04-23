@@ -6,7 +6,7 @@ import { useStore } from "../store";
 export default function TemplateModal({ onClose }) {
   const { actions } = useStore();
   const [title, setTitle] = useState("New System");
-  const [selected, setSelected] = useState("blank");
+  const [selected, setSelected] = useState("study-app");
 
   function handleCreate() {
     const template = TEMPLATES.find((t) => t.id === selected);
@@ -29,21 +29,24 @@ export default function TemplateModal({ onClose }) {
             className="field-input"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            onKeyDown={(e) => e.stopPropagation()}
+            onKeyDown={(e) => {
+              e.stopPropagation();
+              if (e.key === "Enter") handleCreate();
+            }}
             placeholder="System title…"
             autoFocus
           />
           <label className="field-label" style={{ marginTop: 16 }}>
             Starter Template
           </label>
-          <div className="template-grid">
+          <div className="template-list">
             {TEMPLATES.map((t) => (
               <button
                 key={t.id}
-                className={`template-card${selected === t.id ? " template-card--active" : ""}`}
+                className={`template-option${selected === t.id ? " template-option--active" : ""}`}
                 onClick={() => setSelected(t.id)}>
-                <span className="template-card__name">{t.label}</span>
-                <span className="template-card__desc">{t.description}</span>
+                <span className="template-option__name">{t.label}</span>
+                <span className="template-option__desc">{t.description}</span>
               </button>
             ))}
           </div>
