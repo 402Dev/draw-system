@@ -158,13 +158,29 @@ export function StoreProvider({ children }) {
     activeSystemId.current = systemId;
     historyRef.current = [];
     futureRef.current = [];
+    // Persist the last-used workspace so we can restore it on next open
+    try {
+      localStorage.setItem("causal-mapper:activeSystemId", systemId);
+    } catch (_) {}
     dispatch({ type: "LOAD", payload: { system, elements, interactions } });
     dispatch({ type: "SET_ALL_SYSTEMS", payload: allSystems });
   }
 
-  // Load from IndexedDB on mount
+  // Load from IndexedDB on mount — restore last-used workspace if available
   useEffect(() => {
-    loadSystem(SYSTEM_ID);
+    async function init() {
+      let savedId = null;
+      try {
+        savedId = localStorage.getItem("causal-mapper:activeSystemId");
+      } catch (_) {}
+      // Verify the saved workspace still exists in DB before trusting it
+      if (savedId) {
+        const exists = await db.systems.get(savedId);
+        if (!exists) savedId = null;
+      }
+      loadSystem(savedId || SYSTEM_ID);
+    }
+    init();
   }, []);
 
   // Persist on every state change (after initial load)

@@ -137,6 +137,17 @@ export default function Canvas({ searchQuery }) {
     setEdges(toRFEdges(state.interactions));
   }, [state.interactions, state.loaded]);
 
+  // Auto fit-view whenever the active workspace changes
+  useEffect(() => {
+    if (!rfInstance || !state.loaded) return;
+    // Delay so ReactFlow has time to lay out the new nodes
+    const t = setTimeout(() => {
+      rfInstance.fitView({ padding: 0.15, duration: 400 });
+    }, 80);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.system.id, rfInstance]);
+
   // ── Search: pan to matching node ─────────────────────────────────────────
   useEffect(() => {
     if (!searchQuery || !rfInstance) return;

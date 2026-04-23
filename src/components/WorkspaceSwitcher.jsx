@@ -61,8 +61,7 @@ export default function WorkspaceSwitcher() {
 
   return (
     <>
-      <div
-        className="workspace-switcher">
+      <div className="workspace-switcher">
         <button
           className="workspace-switcher__trigger"
           onClick={() => setOpen((v) => !v)}
