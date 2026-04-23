@@ -47,15 +47,27 @@ function StickyNote({ id, data, selected }) {
       />
       <Handle
         type="source"
-        position={Position.Right}
+        position={Position.Top}
+        id="top"
         className="rf-handle"
-        style={{ opacity: 0 }}
       />
       <Handle
-        type="target"
-        position={Position.Left}
+        type="source"
+        position={Position.Bottom}
+        id="bottom"
         className="rf-handle"
-        style={{ opacity: 0 }}
+      />
+      <Handle
+        type="source"
+        position={Position.Left}
+        id="left"
+        className="rf-handle"
+      />
+      <Handle
+        type="source"
+        position={Position.Right}
+        id="right"
+        className="rf-handle"
       />
       {editing ? (
         <textarea

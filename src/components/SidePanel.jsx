@@ -622,18 +622,6 @@ export default function SidePanel({ selected, onClose }) {
                 ))}
               </div>
 
-              <label className="field-label">Edge Label</label>
-              <input
-                className="field-input"
-                value={item.data?.edgeLabel || ""}
-                onChange={(e) =>
-                  actions.updateInteraction(item.id, {
-                    data: { edgeLabel: e.target.value },
-                  })
-                }
-                placeholder="Short midpoint label…"
-              />
-
               <label className="field-label">Edge Color</label>
               <div className="color-row">
                 <input
@@ -661,10 +649,20 @@ export default function SidePanel({ selected, onClose }) {
 
               {item.data?.isBidirectional ? (
                 <>
+                  <label className="field-label">Canvas Label (A → B)</label>
+                  <input
+                    className="field-input"
+                    value={item.data?.labelAtoB || ""}
+                    onChange={(e) =>
+                      actions.updateInteraction(item.id, {
+                        data: { labelAtoB: e.target.value },
+                      })
+                    }
+                    onKeyDown={(e) => e.stopPropagation()}
+                    placeholder="Short label shown on arrow…"
+                  />
                   <div className="field-label-row">
-                    <label className="field-label">
-                      Nature of Interaction (A → B)
-                    </label>
+                    <label className="field-label">Description (A → B)</label>
                     <button
                       className="toggle-btn"
                       onClick={() => setMarkdownPreview((p) => !p)}>
@@ -682,14 +680,26 @@ export default function SidePanel({ selected, onClose }) {
                       className="field-textarea"
                       value={item.data?.natureAtoB || ""}
                       onChange={handleNatureAtoBChange}
-                      placeholder="Describe A → B..."
-                      rows={4}
+                      onKeyDown={(e) => e.stopPropagation()}
+                      placeholder="Describe A → B…"
+                      rows={3}
                     />
                   )}
-                  <div className="field-label-row" style={{ marginTop: 12 }}>
-                    <label className="field-label">
-                      Nature of Interaction (B → A)
-                    </label>
+
+                  <label className="field-label">Canvas Label (B → A)</label>
+                  <input
+                    className="field-input"
+                    value={item.data?.labelBtoA || ""}
+                    onChange={(e) =>
+                      actions.updateInteraction(item.id, {
+                        data: { labelBtoA: e.target.value },
+                      })
+                    }
+                    onKeyDown={(e) => e.stopPropagation()}
+                    placeholder="Short label shown on arrow…"
+                  />
+                  <div className="field-label-row">
+                    <label className="field-label">Description (B → A)</label>
                   </div>
                   {markdownPreview ? (
                     <div className="markdown-preview">
@@ -702,15 +712,28 @@ export default function SidePanel({ selected, onClose }) {
                       className="field-textarea"
                       value={item.data?.natureBtoA || ""}
                       onChange={handleNatureBtoAChange}
-                      placeholder="Describe B → A..."
-                      rows={4}
+                      onKeyDown={(e) => e.stopPropagation()}
+                      placeholder="Describe B → A…"
+                      rows={3}
                     />
                   )}
                 </>
               ) : (
                 <>
+                  <label className="field-label">Canvas Label</label>
+                  <input
+                    className="field-input"
+                    value={item.data?.edgeLabel || ""}
+                    onChange={(e) =>
+                      actions.updateInteraction(item.id, {
+                        data: { edgeLabel: e.target.value },
+                      })
+                    }
+                    onKeyDown={(e) => e.stopPropagation()}
+                    placeholder="Short label shown on arrow…"
+                  />
                   <div className="field-label-row">
-                    <label className="field-label">Nature of Interaction</label>
+                    <label className="field-label">Description</label>
                     <button
                       className="toggle-btn"
                       onClick={() => setMarkdownPreview((p) => !p)}>
@@ -728,8 +751,9 @@ export default function SidePanel({ selected, onClose }) {
                       className="field-textarea"
                       value={item.data?.natureOfInteraction || ""}
                       onChange={handleNatureChange}
-                      placeholder="Markdown supported…"
-                      rows={6}
+                      onKeyDown={(e) => e.stopPropagation()}
+                      placeholder="Full description (Markdown supported)…"
+                      rows={5}
                     />
                   )}
                 </>

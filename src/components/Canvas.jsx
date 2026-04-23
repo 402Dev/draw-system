@@ -24,15 +24,7 @@ import HoverTooltip from "./HoverTooltip";
 import SidePanel from "./SidePanel";
 import ContextMenu from "./ContextMenu";
 import BulkEditPanel from "./BulkEditPanel";
-
-// Defined at module level so React Flow never sees a new reference
-const NODE_TYPES = {
-  iconNode: IconNode,
-  stickyNote: StickyNote,
-  groupNode: GroupNode,
-  cardNode: CardNode,
-};
-const EDGE_TYPES = { smart: SmartEdge };
+import { NODE_TYPES, EDGE_TYPES } from "./nodeEdgeTypes";
 
 function toRFNodes(elements) {
   return elements.map((el) => ({
@@ -733,6 +725,7 @@ export default function Canvas({ searchQuery }) {
         onDrop={onDrop}
         onDragOver={onDragOver}
         fitView
+        connectionMode="loose"
         deleteKeyCode="Delete"
         style={{ width: "100%", height: "100%" }}
         proOptions={{ hideAttribution: true }}>

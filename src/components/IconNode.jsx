@@ -49,10 +49,30 @@ function IconNode({ id, data, selected }) {
           actions.moveElement(id, { x, y });
         }}
       />
-      <Handle type="target" position={Position.Top} className="rf-handle" />
-      <Handle type="source" position={Position.Bottom} className="rf-handle" />
-      <Handle type="target" position={Position.Left} className="rf-handle" />
-      <Handle type="source" position={Position.Right} className="rf-handle" />
+      <Handle
+        type="source"
+        position={Position.Top}
+        id="top"
+        className="rf-handle"
+      />
+      <Handle
+        type="source"
+        position={Position.Bottom}
+        id="bottom"
+        className="rf-handle"
+      />
+      <Handle
+        type="source"
+        position={Position.Left}
+        id="left"
+        className="rf-handle"
+      />
+      <Handle
+        type="source"
+        position={Position.Right}
+        id="right"
+        className="rf-handle"
+      />
 
       {/* Status badge */}
       {statusColor && (

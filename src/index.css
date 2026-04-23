@@ -379,18 +379,29 @@ body {
   white-space: nowrap;
 }
 .react-flow__handle {
-  width: 8px !important;
-  height: 8px !important;
+  width: 10px !important;
+  height: 10px !important;
   background: var(--accent) !important;
-  border: 2px solid var(--bg) !important;
+  border: 2px solid #fff !important;
+  border-radius: 50% !important;
   opacity: 0;
-  transition: opacity 0.15s;
+  transition:
+    opacity 0.15s,
+    transform 0.15s;
+  /* Expand hit area without changing visual size */
+  box-shadow: 0 0 0 6px transparent;
 }
-.icon-node:hover .react-flow__handle {
+/* Show handles when hovering any node type */
+.icon-node:hover .react-flow__handle,
+.sticky-note:hover .react-flow__handle,
+.group-node:hover .react-flow__handle,
+.card-node:hover .react-flow__handle {
   opacity: 1;
 }
 .react-flow__handle:hover {
   opacity: 1 !important;
+  transform: scale(1.35);
+  box-shadow: 0 0 0 6px rgba(99, 102, 241, 0.15);
 }
 /* ── NodeResizer controls — large, easy-to-grab ───────────────────── */
 /* Corner + midpoint handles */

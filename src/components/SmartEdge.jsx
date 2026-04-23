@@ -122,8 +122,8 @@ function SmartEdge({
       sourcePosition,
     );
 
-    const labelAtoB = data?.natureAtoB;
-    const labelBtoA = data?.natureBtoA;
+    const labelAtoB = data?.labelAtoB;
+    const labelBtoA = data?.labelBtoA;
 
     // Inline SVG arrow markers so we can color them correctly
     const markerId = `arrow-${id}`;
@@ -192,7 +192,7 @@ function SmartEdge({
     targetPosition,
   );
 
-  const natureLabel = data?.natureOfInteraction || data?.edgeLabel;
+  const natureLabel = data?.edgeLabel;
 
   return (
     <>
