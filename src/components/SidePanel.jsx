@@ -226,6 +226,158 @@ export default function SidePanel({ selected, onClose }) {
                 </button>
               )}
 
+              {/* Shape picker — only for iconNode */}
+              {item.type === "iconNode" && (
+                <>
+                  <label className="field-label">Shape</label>
+                  <div className="shape-picker">
+                    {[
+                      {
+                        id: "rect",
+                        label: "Box",
+                        preview: (
+                          <rect
+                            x="3"
+                            y="3"
+                            width="18"
+                            height="18"
+                            rx="2"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.5"
+                          />
+                        ),
+                      },
+                      {
+                        id: "rounded",
+                        label: "Rounded",
+                        preview: (
+                          <rect
+                            x="3"
+                            y="3"
+                            width="18"
+                            height="18"
+                            rx="9"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.5"
+                          />
+                        ),
+                      },
+                      {
+                        id: "circle",
+                        label: "Circle",
+                        preview: (
+                          <circle
+                            cx="12"
+                            cy="12"
+                            r="9"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.5"
+                          />
+                        ),
+                      },
+                      {
+                        id: "cylinder",
+                        label: "Cylinder",
+                        preview: (
+                          <>
+                            <ellipse
+                              cx="12"
+                              cy="17"
+                              rx="9"
+                              ry="3"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="1.5"
+                            />
+                            <line
+                              x1="3"
+                              y1="7"
+                              x2="3"
+                              y2="17"
+                              stroke="currentColor"
+                              strokeWidth="1.5"
+                            />
+                            <line
+                              x1="21"
+                              y1="7"
+                              x2="21"
+                              y2="17"
+                              stroke="currentColor"
+                              strokeWidth="1.5"
+                            />
+                            <ellipse
+                              cx="12"
+                              cy="7"
+                              rx="9"
+                              ry="3"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="1.5"
+                            />
+                          </>
+                        ),
+                      },
+                      {
+                        id: "diamond",
+                        label: "Diamond",
+                        preview: (
+                          <polygon
+                            points="12,2 22,12 12,22 2,12"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.5"
+                          />
+                        ),
+                      },
+                      {
+                        id: "hexagon",
+                        label: "Hexagon",
+                        preview: (
+                          <polygon
+                            points="12,2 21,7 21,17 12,22 3,17 3,7"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.5"
+                          />
+                        ),
+                      },
+                      {
+                        id: "parallelogram",
+                        label: "I/O",
+                        preview: (
+                          <polygon
+                            points="7,3 21,3 17,21 3,21"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.5"
+                          />
+                        ),
+                      },
+                    ].map((s) => (
+                      <button
+                        key={s.id}
+                        className={`shape-swatch${(item.data?.shape || "rect") === s.id ? " shape-swatch--active" : ""}`}
+                        title={s.label}
+                        onClick={() =>
+                          actions.updateElement(item.id, {
+                            data: { shape: s.id },
+                          })
+                        }>
+                        <svg
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg">
+                          {s.preview}
+                        </svg>
+                        <span>{s.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+
               {item.type === "groupNode" ? (
                 /* ── Group box: fill + border color ─── */
                 <>

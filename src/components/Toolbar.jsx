@@ -177,6 +177,14 @@ export default function Toolbar({ onSearch }) {
       "{overflow:visible!important;clip:auto!important}";
     document.head.appendChild(noClipStyle);
 
+    // Hide sticky notes and UI chrome from the diagram screenshot
+    const hideUiStyle = document.createElement("style");
+    hideUiStyle.id = "rf-export-hideui";
+    hideUiStyle.textContent =
+      ".react-flow__node-stickyNote,.react-flow__controls,.react-flow__minimap" +
+      "{display:none!important}";
+    document.head.appendChild(hideUiStyle);
+
     await new Promise((r) =>
       requestAnimationFrame(() => requestAnimationFrame(r)),
     );
@@ -202,6 +210,7 @@ export default function Toolbar({ onSearch }) {
     });
 
     noClipStyle.remove();
+    hideUiStyle.remove();
     return canvas;
   }
 

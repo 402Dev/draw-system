@@ -149,6 +149,14 @@ export async function exportPDF(state, rfInstance) {
       "{overflow:visible!important;clip:auto!important}";
     document.head.appendChild(noClipStyle);
 
+    // Hide sticky notes and UI chrome (controls, minimap) from the diagram screenshot
+    const hideUiStyle = document.createElement("style");
+    hideUiStyle.id = "rf-export-hideui";
+    hideUiStyle.textContent =
+      ".react-flow__node-stickyNote,.react-flow__controls,.react-flow__minimap" +
+      "{display:none!important}";
+    document.head.appendChild(hideUiStyle);
+
     // Step 3: Wait for transform + paint to settle
     await new Promise((r) =>
       requestAnimationFrame(() => requestAnimationFrame(r)),
@@ -174,8 +182,9 @@ export async function exportPDF(state, rfInstance) {
       windowHeight: document.documentElement.scrollHeight,
     });
 
-    // Step 5: Restore normal overflow
+    // Step 5: Restore normal overflow and visibility
     noClipStyle.remove();
+    hideUiStyle.remove();
     const imgData = canvas.toDataURL("image/png");
 
     const availW = pageW - margin * 2;
@@ -229,7 +238,9 @@ export async function exportPDF(state, rfInstance) {
   doc.setFont(undefined, "normal");
   const elementById = Object.fromEntries(state.elements.map((e) => [e.id, e]));
 
-  state.elements.forEach((el, idx) => {
+  const sysElements = state.elements.filter((e) => e.type !== "stickyNote");
+
+  sysElements.forEach((el, idx) => {
     // Only show outgoing (source) interactions for this element
     const connectedTo = state.interactions.filter((i) => i.source === el.id);
     const interactionStrings = [];
