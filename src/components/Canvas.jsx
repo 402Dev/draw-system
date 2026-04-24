@@ -331,8 +331,68 @@ export default function Canvas({ searchQuery }) {
   );
 
   // ── Node position changes ─────────────────────────────────────────────────
+  // Tracks group-drag state: which child elements move with the group
+  const groupDragRef = useRef(null); // { groupId, startPos, children: [{id, startPos}] }
+
+  const onNodeDragStart = useCallback(
+    (_e, node) => {
+      if (node.type !== "groupNode") return;
+      const groupEl = state.elements.find((e) => e.id === node.id);
+      if (!groupEl) return;
+      const gx = groupEl.position.x;
+      const gy = groupEl.position.y;
+      const gw = groupEl.style?.width || node.width || 200;
+      const gh = groupEl.style?.height || node.height || 120;
+
+      // Collect elements whose top-left position falls inside the group bounds
+      const children = state.elements
+        .filter((e) => {
+          if (e.id === node.id) return false;
+          return (
+            e.position.x >= gx &&
+            e.position.x <= gx + gw &&
+            e.position.y >= gy &&
+            e.position.y <= gy + gh
+          );
+        })
+        .map((e) => ({ id: e.id, startPos: { ...e.position } }));
+
+      groupDragRef.current = {
+        groupId: node.id,
+        startPos: { x: gx, y: gy },
+        children,
+      };
+    },
+    [state.elements],
+  );
+
   const onNodeDrag = useCallback(
     (_e, node) => {
+      // Move children live with the group
+      if (
+        node.type === "groupNode" &&
+        groupDragRef.current?.groupId === node.id
+      ) {
+        const { startPos, children } = groupDragRef.current;
+        const dx = node.position.x - startPos.x;
+        const dy = node.position.y - startPos.y;
+        if (children.length > 0) {
+          setNodes((nds) =>
+            nds.map((n) => {
+              const child = children.find((c) => c.id === n.id);
+              if (!child) return n;
+              return {
+                ...n,
+                position: {
+                  x: child.startPos.x + dx,
+                  y: child.startPos.y + dy,
+                },
+              };
+            }),
+          );
+        }
+      }
+
       // Compute alignment guides
       const SNAP_DIST = 6;
       const newGuides = [];
@@ -349,13 +409,28 @@ export default function Canvas({ searchQuery }) {
       });
       setGuides(newGuides);
     },
-    [nodes],
+    [nodes, setNodes],
   );
 
   const onNodeDragStop = useCallback(
     (_e, node) => {
       actions.snapshot();
       actions.moveElement(node.id, node.position);
+
+      // Persist child positions when a group was dragged
+      if (
+        node.type === "groupNode" &&
+        groupDragRef.current?.groupId === node.id
+      ) {
+        const { startPos, children } = groupDragRef.current;
+        const dx = node.position.x - startPos.x;
+        const dy = node.position.y - startPos.y;
+        children.forEach(({ id, startPos: sp }) => {
+          actions.moveElement(id, { x: sp.x + dx, y: sp.y + dy });
+        });
+        groupDragRef.current = null;
+      }
+
       setGuides([]);
     },
     [actions],
@@ -707,6 +782,7 @@ export default function Canvas({ searchQuery }) {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
+        onNodeDragStart={onNodeDragStart}
         onNodeDrag={onNodeDrag}
         onNodeDragStop={onNodeDragStop}
         onNodeClick={onNodeClick}
