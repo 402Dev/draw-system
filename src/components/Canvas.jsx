@@ -652,9 +652,30 @@ export default function Canvas({ searchQuery }) {
       });
     }
 
-    // Focus mode: highlight only focused node + direct neighbours
+    // Focus mode: highlight only focused node + direct neighbours + group members
     if (focusedNodeId) {
       const connected = new Set([focusedNodeId]);
+
+      const focusedEl = state.elements.find((e) => e.id === focusedNodeId);
+      if (focusedEl && focusedEl.type === "groupNode") {
+        const gx = focusedEl.position.x;
+        const gy = focusedEl.position.y;
+        const gw = focusedEl.style?.width || 200;
+        const gh = focusedEl.style?.height || 120;
+
+        state.elements.forEach((e) => {
+          if (e.id === focusedNodeId) return;
+          if (
+            e.position.x >= gx &&
+            e.position.x <= gx + gw &&
+            e.position.y >= gy &&
+            e.position.y <= gy + gh
+          ) {
+            connected.add(e.id);
+          }
+        });
+      }
+
       state.interactions.forEach((ix) => {
         if (ix.source === focusedNodeId) connected.add(ix.target);
         if (ix.target === focusedNodeId) connected.add(ix.source);
