@@ -482,6 +482,45 @@ export default function SidePanel({ selected, onClose }) {
                 </>
               )}
 
+              <label className="field-label">Dimensions (W × H)</label>
+              <div
+                style={{
+                  display: "flex",
+                  gap: "8px",
+                  marginBottom: "16px",
+                  alignItems: "center",
+                }}>
+                <input
+                  type="number"
+                  className="field-input"
+                  placeholder="Width"
+                  value={item.style?.width || ""}
+                  onChange={(e) => {
+                    const w = e.target.value
+                      ? Number(e.target.value)
+                      : undefined;
+                    actions.updateElement(item.id, {
+                      style: { ...item.style, width: w },
+                    });
+                  }}
+                />
+                <span style={{ color: "#a0a4c0" }}>×</span>
+                <input
+                  type="number"
+                  className="field-input"
+                  placeholder="Height"
+                  value={item.style?.height || ""}
+                  onChange={(e) => {
+                    const h = e.target.value
+                      ? Number(e.target.value)
+                      : undefined;
+                    actions.updateElement(item.id, {
+                      style: { ...item.style, height: h },
+                    });
+                  }}
+                />
+              </div>
+
               <div className="field-label-row">
                 <label className="field-label">Purpose</label>
                 <button
