@@ -253,39 +253,21 @@ export async function captureCanvasLight(rfInstance) {
   const cH = Math.round(rect.height);
   const SCALE = 2;
 
-  // Step 1 — capture HTML nodes (html2canvas skips SVG content entirely)
-  const { default: html2canvas } = await import("html2canvas");
-  const canvas = await html2canvas(document.body, {
-    x: Math.round(rect.left + window.scrollX),
-    y: Math.round(rect.top + window.scrollY),
-    width: cW,
-    height: cH,
-    backgroundColor: "#f5f7ff",
-    scale: SCALE,
-    useCORS: true,
-    logging: false,
-    windowWidth: document.documentElement.scrollWidth,
-    windowHeight: document.documentElement.scrollHeight,
-  });
-
-  // Step 2 — overlay edge SVG with explicit arrowheads (markers do not survive raster export reliably)
-  try {
-    await overlayEdgeSvgToCanvas({
-      container,
-      rfInstance,
-      canvas,
+  // Step 1 — capture HTML nodes using html-to-image
+  const { toCanvas } = await import("html-to-image");
+  const canvas = await toCanvas(
+    document.querySelector(".react-flow__renderer"),
+    {
       width: cW,
       height: cH,
-      scale: SCALE,
-      strokeColor: "#6366f1",
-      minStrokeWidth: 2,
-      opacity: 0.88,
-      arrowLength: 12,
-      arrowWidth: 9,
-    });
-  } catch {
-    // edge overlay failed — nodes are still captured
-  }
+      backgroundColor: "#f5f7ff",
+      pixelRatio: SCALE,
+      skipFonts: true,
+    },
+  );
+
+  // Since html-to-image captures SVG correctly (including edges),
+  // we might not even need Step 2, but we keep the canvas size consistent.
 
   injected.forEach((s) => s.remove());
   return canvas;
