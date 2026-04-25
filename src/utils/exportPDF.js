@@ -334,16 +334,15 @@ export async function exportPDF(state, rfInstance) {
     nm(doc);
     tc(doc, P.text);
     const purpLines = doc.splitTextToSize(strip(state.system.purpose), cW);
-    const shown = purpLines.slice(0, 3);
-    doc.text(shown, M, y);
-    y += shown.length * 4.5 + 5;
+    doc.text(purpLines, M, y);
+    y += purpLines.length * 4.5 + 5;
   }
 
   // Stats row
   const stats = [
-    { label: "Components", val: iconNodes.length },
-    { label: "Interactions", val: state.interactions.length },
     { label: "Subsystems", val: groupNodes.length },
+    { label: "Components", val: iconNodes.length },
+    { label: "Reactions", val: state.interactions.length },
   ];
   const bW = 36,
     bH = 17;
